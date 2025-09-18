@@ -64,17 +64,37 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-  // Keycloakの登録ページに直接リダイレクト
-  const browserKeycloakUrl = "http://localhost:8080";
-  const registrationUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/registrations`;
-  const clientId = keycloakConfig.resource;
-  const redirectUri = encodeURIComponent(`${process.env.APP_URL || "http://localhost:3000"}/callback`);
-  const responseType = "code";
-  const scope = "openid profile email";
+  // ログイン済みの場合、まず現在のセッションからログアウト
+  if (req.session.user) {
+    const idToken = req.session.user?.idToken;
+    req.session.destroy((err) => {
+      if (!err && idToken) {
+        // Keycloakからもログアウトしてから登録ページへ
+        const browserKeycloakUrl = "http://localhost:8080";
+        const logoutUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/logout`;
+        const registrationUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/registrations`;
+        const clientId = keycloakConfig.resource;
+        const redirectUri = encodeURIComponent(`${process.env.APP_URL || "http://localhost:3000"}/callback`);
+        const signupRedirect = encodeURIComponent(
+          `${registrationUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid profile email`,
+        );
+        const fullLogoutUrl = `${logoutUrl}?id_token_hint=${idToken}&post_logout_redirect_uri=${signupRedirect}`;
+        return res.redirect(fullLogoutUrl);
+      }
+    });
+  } else {
+    // 未ログインの場合は直接登録ページへ
+    const browserKeycloakUrl = "http://localhost:8080";
+    const registrationUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/registrations`;
+    const clientId = keycloakConfig.resource;
+    const redirectUri = encodeURIComponent(`${process.env.APP_URL || "http://localhost:3000"}/callback`);
+    const responseType = "code";
+    const scope = "openid profile email";
 
-  const signupUrl = `${registrationUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+    const signupUrl = `${registrationUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
 
-  res.redirect(signupUrl);
+    res.redirect(signupUrl);
+  }
 });
 
 app.get("/callback", async (req, res) => {
@@ -144,18 +164,28 @@ app.get("/profile", checkAuth, (req, res) => {
 
 app.get("/logout", (req, res) => {
   const idToken = req.session.user?.idToken;
-  req.session.destroy();
+  const refreshToken = req.session.user?.refreshToken;
 
-  if (idToken) {
-    // ブラウザからアクセス可能なURLを使用
-    const browserKeycloakUrl = "http://localhost:8080";
-    const logoutUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/logout`;
-    const postLogoutRedirectUri = encodeURIComponent(process.env.APP_URL || "http://localhost:3000");
-    const fullLogoutUrl = `${logoutUrl}?id_token_hint=${idToken}&post_logout_redirect_uri=${postLogoutRedirectUri}`;
-    res.redirect(fullLogoutUrl);
-  } else {
-    res.redirect("/");
-  }
+  // アプリケーションセッションを破棄
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Session destroy error:", err);
+    }
+
+    if (idToken) {
+      // Keycloakからもログアウト（RP-Initiated Logout）
+      const browserKeycloakUrl = "http://localhost:8080";
+      const logoutUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/logout`;
+      const postLogoutRedirectUri = encodeURIComponent(process.env.APP_URL || "http://localhost:3000");
+
+      // id_token_hintとpost_logout_redirect_uriを含める
+      const fullLogoutUrl = `${logoutUrl}?id_token_hint=${idToken}&post_logout_redirect_uri=${postLogoutRedirectUri}`;
+
+      res.redirect(fullLogoutUrl);
+    } else {
+      res.redirect("/");
+    }
+  });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
