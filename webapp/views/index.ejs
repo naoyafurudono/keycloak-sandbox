@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keycloak Demo App</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .user-info {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .status.authenticated {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status.guest {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Keycloak認証デモ</h1>
+
+        <% if (user) { %>
+            <div class="user-info">
+                <p><span class="status authenticated">認証済み</span></p>
+                <p><strong>ユーザー名:</strong> <%= user.preferred_username || user.name %></p>
+                <p><strong>メールアドレス:</strong> <%= user.email %></p>
+            </div>
+            <a href="/profile" class="btn" style="margin-right: 1rem;">プロファイル表示</a>
+            <a href="/logout" class="btn" style="background: #e53e3e;">ログアウト</a>
+        <% } else { %>
+            <div class="user-info">
+                <p><span class="status guest">ゲスト</span></p>
+                <p>ログインして、Keycloak認証の動作を確認してください。</p>
+            </div>
+            <a href="/login" class="btn">Keycloakでログイン</a>
+        <% } %>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+            <h2>📝 デモアプリケーションについて</h2>
+            <p>このアプリケーションは、Keycloakを使用したOpenID Connect認証のデモです。</p>
+            <ul>
+                <li>Keycloakサーバーで認証を管理</li>
+                <li>OpenID Connectプロトコルを使用</li>
+                <li>セッションベースの認証状態管理</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

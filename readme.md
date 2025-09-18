@@ -1,3 +1,113 @@
-# Keycloak Sandbox
+# Keycloak認証デモアプリケーション
 
-Keycloakを色々試すためのリポジトリです。
+Keycloakを使用したOpenID Connect認証のデモアプリケーションです。Docker Composeで全ての環境を構築します。
+
+## 🚀 構成
+
+- **Keycloak**: 認証プロバイダー (v24.0)
+- **PostgreSQL**: Keycloakデータベース (v15)
+- **Node.js Webアプリ**: Express + OpenID Connect
+
+## 📋 前提条件
+
+- Docker & Docker Compose
+- ポート 3000, 8080 が空いていること
+
+## ⚙️ セットアップ
+
+### 1. 環境変数の設定
+
+```bash
+cp .env.example .env
+```
+
+必要に応じて `.env` ファイルを編集してください。
+
+### 2. アプリケーションの起動
+
+```bash
+docker-compose up -d
+```
+
+初回起動時は、Keycloakの初期設定に時間がかかる場合があります。
+
+### 3. アクセス
+
+- **Webアプリケーション**: http://localhost:3000
+- **Keycloak管理コンソール**: http://localhost:8080
+
+## 🔑 デフォルトアカウント
+
+### Keycloak管理者
+- ユーザー名: `admin`
+- パスワード: `admin`
+
+### デモユーザー (デモRealm)
+1. 一般ユーザー
+   - ユーザー名: `demo`
+   - パスワード: `demo123`
+
+2. 管理者ユーザー
+   - ユーザー名: `admin`
+   - パスワード: `admin123`
+
+## 🎮 使い方
+
+1. http://localhost:3000 にアクセス
+2. 「Keycloakでログイン」ボタンをクリック
+3. Keycloakのログイン画面でデモユーザーのいずれかでログイン
+4. 認証後、アプリケーションに戻ってプロファイル情報が表示されます
+
+## 🔧 カスタマイズ
+
+### Keycloak設定の変更
+
+`keycloak/import/demo-realm.json` を編集して、Realm設定をカスタマイズできます。
+
+### 新しいユーザーの追加
+
+1. Keycloak管理コンソール (http://localhost:8080) にログイン
+2. Demo Realmを選択
+3. Users → Add userで新規ユーザーを作成
+
+## 🛑 停止と削除
+
+```bash
+# 停止
+docker-compose down
+
+# 完全削除（データベース含む）
+docker-compose down -v
+```
+
+## 📁 プロジェクト構造
+
+```
+.
+├── docker-compose.yml       # Docker Compose設定
+├── .env.example            # 環境変数テンプレート
+├── keycloak/
+│   └── import/
+│       └── demo-realm.json # Keycloak Realm設定
+└── webapp/
+    ├── Dockerfile          # Webアプリコンテナ設定
+    ├── package.json        # Node.js依存関係
+    ├── server.js           # Expressサーバー
+    └── views/              # EJSテンプレート
+        ├── index.ejs       # ホームページ
+        └── profile.ejs     # プロファイルページ
+```
+
+## 🐛 トラブルシューティング
+
+### Keycloakが起動しない
+- PostgreSQLが正常に起動しているか確認: `docker-compose logs postgres`
+- ポート8080が他のアプリケーションで使用されていないか確認
+
+### ログインできない
+- Keycloakのログを確認: `docker-compose logs keycloak`
+- ブラウザのCookieをクリアして再試行
+
+### Webアプリが起動しない
+- Node.jsアプリのログを確認: `docker-compose logs webapp`
+- 環境変数が正しく設定されているか確認

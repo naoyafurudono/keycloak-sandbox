@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザープロファイル - Keycloak Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .profile-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .profile-item {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+        .profile-label {
+            font-weight: 600;
+            min-width: 150px;
+            color: #4a5568;
+        }
+        .profile-value {
+            color: #2d3748;
+            word-break: break-word;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+            margin-right: 1rem;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .btn-danger {
+            background: #e53e3e;
+        }
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        .token-section {
+            margin-top: 2rem;
+        }
+        .token-box {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        details {
+            margin-top: 1rem;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            padding: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👤 ユーザープロファイル</h1>
+
+        <div class="profile-card">
+            <h2>基本情報</h2>
+            <div class="profile-item">
+                <span class="profile-label">ユーザーID:</span>
+                <span class="profile-value"><%= user.sub %></span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">ユーザー名:</span>
+                <span class="profile-value"><%= user.preferred_username || user.name || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">表示名:</span>
+                <span class="profile-value"><%= user.name || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">メールアドレス:</span>
+                <span class="profile-value"><%= user.email || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">メール確認済み:</span>
+                <span class="profile-value"><%= user.email_verified ? '✅ はい' : '❌ いいえ' %></span>
+            </div>
+        </div>
+
+        <div class="token-section">
+            <h2>🔑 認証トークン情報</h2>
+
+            <details>
+                <summary>アクセストークン</summary>
+                <div class="token-box">
+                    <%= user.accessToken %>
+                </div>
+            </details>
+
+            <details>
+                <summary>IDトークン</summary>
+                <div class="token-box">
+                    <%= user.idToken %>
+                </div>
+            </details>
+
+            <% if (user.refreshToken) { %>
+            <details>
+                <summary>リフレッシュトークン</summary>
+                <div class="token-box">
+                    <%= user.refreshToken %>
+                </div>
+            </details>
+            <% } %>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="/" class="btn">ホームに戻る</a>
+            <a href="/logout" class="btn btn-danger">ログアウト</a>
+        </div>
+    </div>
+</body>
+</html>

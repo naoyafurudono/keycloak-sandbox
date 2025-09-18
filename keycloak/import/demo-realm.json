@@ -1,0 +1,189 @@
+{
+  "id": "demo",
+  "realm": "demo",
+  "displayName": "Demo Realm",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "defaultRole": {
+    "id": "user",
+    "name": "user"
+  },
+  "roles": {
+    "realm": [
+      {
+        "id": "user",
+        "name": "user",
+        "description": "Default user role"
+      },
+      {
+        "id": "admin",
+        "name": "admin",
+        "description": "Administrator role"
+      }
+    ]
+  },
+  "groups": [],
+  "defaultGroups": [],
+  "requiredCredentials": ["password"],
+  "users": [
+    {
+      "id": "demo-user-1",
+      "username": "demo",
+      "email": "demo@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Demo",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    },
+    {
+      "id": "admin-user-1",
+      "username": "admin",
+      "email": "admin@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user", "admin"]
+    }
+  ],
+  "clients": [
+    {
+      "id": "webapp",
+      "clientId": "webapp",
+      "name": "Demo Web Application",
+      "description": "Demo web application client",
+      "rootUrl": "http://localhost:3000",
+      "adminUrl": "http://localhost:3000",
+      "baseUrl": "http://localhost:3000",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "secret",
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "saml.multivalued.roles": "false",
+        "saml.force.post.binding": "false",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "saml.server.signature": "false",
+        "saml.server.signature.keyinfo.ext": "false",
+        "use.refresh.tokens": "true",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "client_credentials.use_refresh_token": "false",
+        "saml.client.signature": "false",
+        "require.pushed.authorization.requests": "false",
+        "saml.assertion.signature": "false",
+        "id.token.as.detached.signature": "false",
+        "saml.encrypt": "false",
+        "login_theme": "",
+        "saml.authnstatement": "false",
+        "display.on.consent.screen": "false",
+        "saml_force_name_id_format": "false",
+        "consent.screen.text": "",
+        "saml.onetimeuse.condition": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "clientScopes": [],
+  "defaultDefaultClientScopes": [
+    "profile",
+    "email",
+    "roles",
+    "web-origins"
+  ],
+  "defaultOptionalClientScopes": [
+    "offline_access"
+  ],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {},
+  "eventsEnabled": false,
+  "eventsListeners": ["jboss-logging"],
+  "enabledEventTypes": [],
+  "adminEventsEnabled": false,
+  "adminEventsDetailsEnabled": false,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "ja"],
+  "defaultLocale": "ja",
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients",
+  "dockerAuthenticationFlow": "docker auth",
+  "attributes": {
+    "cibaBackchannelTokenDeliveryMode": "poll",
+    "cibaExpiresIn": "120",
+    "cibaInterval": "5",
+    "cibaAuthRequestedUserHint": "login_hint"
+  },
+  "keycloakVersion": "24.0.0",
+  "userManagedAccessAllowed": false
+}

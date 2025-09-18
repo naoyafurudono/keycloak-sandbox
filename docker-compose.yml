@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloak-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    command:
+      - start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - keycloak-network
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
+
+  webapp:
+    build: ./webapp
+    container_name: demo-webapp
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: demo
+      KEYCLOAK_CLIENT_ID: webapp
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-secret}
+      SESSION_SECRET: ${SESSION_SECRET:-your-session-secret}
+      APP_URL: http://localhost:3000
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak-network
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules
+
+networks:
+  keycloak-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
