@@ -120,6 +120,17 @@
             </div>
         </div>
 
+        <div class="profile-card">
+            <h2>🔐 パスキー認証</h2>
+            <p style="color: #4a5568; margin-bottom: 1.5rem;">
+                パスキーを使用することで、パスワードなしで安全にログインできます。生体認証や物理キーを使用して認証を行います。
+            </p>
+            <button id="registerPasskey" class="btn" style="background: #38a169;">
+                🔑 パスキーを登録
+            </button>
+            <div id="passkeyStatus" style="margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none;"></div>
+        </div>
+
         <div class="token-section">
             <h2>🔑 認証トークン情報</h2>
 
@@ -152,5 +163,55 @@
             <a href="/" class="btn">🏠 ホームへ</a>
         </div>
     </div>
+
+    <script>
+        document.getElementById('registerPasskey').addEventListener('click', async () => {
+            const statusDiv = document.getElementById('passkeyStatus');
+            const button = document.getElementById('registerPasskey');
+
+            try {
+                button.disabled = true;
+                button.textContent = '登録中...';
+
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#e6f7ff';
+                statusDiv.style.color = '#0066cc';
+                statusDiv.innerHTML = '🔄 パスキーの登録を開始しています...';
+
+                // Keycloak管理コンソールのパスキー登録ページにリダイレクト
+                const keycloakUrl = 'http://localhost:8080';
+                const realm = '<%= process.env.KEYCLOAK_REALM || "demo" %>';
+
+                // パスキー登録のためのKeycloak URLを構築
+                const passkeyRegisterUrl = `${keycloakUrl}/realms/${realm}/account/#/security/signingin`;
+
+                statusDiv.innerHTML = `
+                    <p>🔄 Keycloakのアカウント管理ページにリダイレクトします...</p>
+                    <p>そちらでパスキーを登録してください。</p>
+                    <a href="${passkeyRegisterUrl}" target="_blank" class="btn" style="margin-top: 1rem;">
+                        📱 Keycloakでパスキーを登録
+                    </a>
+                `;
+
+                // 5秒後に自動リダイレクト
+                setTimeout(() => {
+                    window.open(passkeyRegisterUrl, '_blank');
+                }, 2000);
+
+            } catch (error) {
+                console.error('パスキー登録エラー:', error);
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#ffebee';
+                statusDiv.style.color = '#c62828';
+                statusDiv.innerHTML = `
+                    ❌ パスキーの登録に失敗しました: ${error.message}
+                    <br><small>ブラウザがWebAuthnに対応していない可能性があります。</small>
+                `;
+            } finally {
+                button.disabled = false;
+                button.textContent = '🔑 パスキーを登録';
+            }
+        });
+    </script>
 </body>
 </html>

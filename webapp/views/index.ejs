@@ -86,8 +86,19 @@
                 <p><span class="status guest">ゲスト</span></p>
                 <p>ログインして、Keycloak認証の動作を確認してください。</p>
             </div>
-            <a href="/login" class="btn">ログイン</a>
-            <a href="/signup" class="btn" style="background: #48bb78; margin-left: 1rem;">新規登録</a>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                <a href="/login" class="btn" style="flex: 1; text-align: center;">🔑 ログイン</a>
+                <a href="/signup" class="btn" style="background: #48bb78; flex: 1; text-align: center;">📝 新規登録</a>
+            </div>
+            <div style="margin-top: 1rem;">
+                <p style="margin-bottom: 0.5rem; color: #4a5568; font-size: 0.9rem;">
+                    🔐 <strong>パスキー認証</strong>について：
+                </p>
+                <p style="color: #666; font-size: 0.875rem; margin-bottom: 1rem;">
+                    パスキーを事前に登録していれば、Keycloakのログインページでパスワードなしでログインできます。
+                    まずは通常のログインでアカウントを作成し、プロファイルページからパスキーを登録してください。
+                </p>
+            </div>
         <% } %>
 
         <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
