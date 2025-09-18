@@ -63,6 +63,20 @@ app.get("/login", (req, res) => {
   res.redirect(authUrl);
 });
 
+app.get("/signup", (req, res) => {
+  // Keycloakの登録ページに直接リダイレクト
+  const browserKeycloakUrl = "http://localhost:8080";
+  const registrationUrl = `${browserKeycloakUrl}/realms/${keycloakConfig.realm}/protocol/openid-connect/registrations`;
+  const clientId = keycloakConfig.resource;
+  const redirectUri = encodeURIComponent(`${process.env.APP_URL || "http://localhost:3000"}/callback`);
+  const responseType = "code";
+  const scope = "openid profile email";
+
+  const signupUrl = `${registrationUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+
+  res.redirect(signupUrl);
+});
+
 app.get("/callback", async (req, res) => {
   const { code } = req.query;
 
