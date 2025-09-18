@@ -10,7 +10,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, <%= appColor %> 0%, <%= appColor %> 100%);
             min-height: 100vh;
         }
         .container {
@@ -63,7 +63,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 Keycloak認証デモ</h1>
+        <h1>🔐 <%= appName %> - Keycloak SSOデモ</h1>
 
         <% if (user) { %>
             <div class="user-info">
@@ -83,12 +83,12 @@
         <% } %>
 
         <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
-            <h2>📝 デモアプリケーションについて</h2>
-            <p>このアプリケーションは、Keycloakを使用したOpenID Connect認証のデモです。</p>
+            <h2>🌐 <%= appName %> (ポート: <%= appPort %>)</h2>
+            <p>このアプリケーションは、Keycloakを使用したSSOのデモです。</p>
             <ul>
-                <li>Keycloakサーバーで認証を管理</li>
-                <li>OpenID Connectプロトコルを使用</li>
-                <li>セッションベースの認証状態管理</li>
+                <li>共通Keycloakサーバーで認証を管理</li>
+                <li>他のアプリとSSOで連携</li>
+                <li>1度のログインですべてのアプリにアクセス可能</li>
             </ul>
         </div>
     </div>

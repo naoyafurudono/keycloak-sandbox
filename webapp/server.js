@@ -5,6 +5,8 @@ require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const APP_NAME = process.env.APP_NAME || "アプリ1";
+const APP_COLOR = process.env.APP_COLOR || "#667eea";
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -46,7 +48,12 @@ const checkAuth = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
-  res.render("index", { user: req.session.user });
+  res.render("index", {
+    user: req.session.user,
+    appName: APP_NAME,
+    appColor: APP_COLOR,
+    appPort: PORT,
+  });
 });
 
 app.get("/login", (req, res) => {
@@ -159,7 +166,11 @@ app.get("/callback", async (req, res) => {
 });
 
 app.get("/profile", checkAuth, (req, res) => {
-  res.render("profile", { user: req.session.user });
+  res.render("profile", {
+    user: req.session.user,
+    appName: APP_NAME,
+    appColor: APP_COLOR,
+  });
 });
 
 app.get("/logout", (req, res) => {

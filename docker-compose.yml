@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -51,12 +51,39 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
+      PORT: 3000
+      APP_NAME: アプリ1
+      APP_COLOR: "#667eea"
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: demo
       KEYCLOAK_CLIENT_ID: webapp
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-secret}
       SESSION_SECRET: ${SESSION_SECRET:-your-session-secret}
       APP_URL: http://localhost:3000
+    depends_on:
+      - keycloak
+    networks:
+      - keycloak-network
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules
+
+  webapp2:
+    build: ./webapp
+    container_name: demo-webapp2
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      APP_NAME: アプリ2
+      APP_COLOR: "#f093fb"
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: demo
+      KEYCLOAK_CLIENT_ID: webapp2
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET2:-secret2}
+      SESSION_SECRET: ${SESSION_SECRET2:-your-session-secret-2}
+      APP_URL: http://localhost:3001
     depends_on:
       - keycloak
     networks:
