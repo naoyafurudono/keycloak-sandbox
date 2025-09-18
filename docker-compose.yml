@@ -75,13 +75,14 @@ services:
       - "8080:8080"
     command:
       - start-dev
+      - --import-realm
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - keycloak-network
     volumes:
-      - ./keycloak/import:/opt/keycloak/data/import
+      - ./keycloak:/opt/keycloak/data/import
 
   webapp:
     build: ./webapp

@@ -42,25 +42,37 @@ Keycloakを使用したシングルサインオン（SSO）と、TODOリスト�
 
 ## ⚙️ セットアップ
 
-### 1. 環境変数の設定
+### 方法1: 自動セットアップ（推奨）
 
 ```bash
-cp .env.example .env
+# 初期化スクリプトを実行
+./init.sh
 ```
 
-必要に応じて `.env` ファイルを編集してください。
+このスクリプトは以下を自動で実行します：
+- 既存コンテナのクリーンアップ
+- Dockerイメージのビルド
+- 全コンテナの起動
+- Keycloakへのrealm設定のインポート
+- 起動確認とアクセス情報の表示
 
-### 2. アプリケーションの起動
+### 方法2: 手動セットアップ
 
 ```bash
+# 1. コンテナを起動
 docker-compose up -d
+
+# 2. Keycloakが起動するまで待機（約30秒）
+sleep 30
+
+# 3. 動作確認
+curl http://localhost:3000
 ```
 
-初回起動時は、Keycloakの初期設定に時間がかかる場合があります。
+### アクセスURL
 
-### 3. アクセス
-
-- **Webアプリケーション**: http://localhost:3000
+- **アプリ1（紫テーマ）**: http://localhost:3000
+- **アプリ2（ピンクテーマ）**: http://localhost:3001
 - **Keycloak管理コンソール**: http://localhost:8080
 
 ## 🔑 デフォルトアカウント
@@ -72,38 +84,38 @@ docker-compose up -d
 
 ### デモユーザー (デモRealm)
 
-1. 一般ユーザー
-   - ユーザー名: `demo`
-   - パスワード: `demo123`
+- ユーザー名: `demo`
+- パスワード: `demo123`
 
-2. 管理者ユーザー
-   - ユーザー名: `admin`
-   - パスワード: `admin123`
+※ 新規ユーザーは「サインアップ」ボタンから登録できます
 
 ## 🎮 使い方
 
-### 既存ユーザーでログイン
+### シングルサインオン（SSO）の確認
 
-1. http://localhost:3000 にアクセス
-2. 「ログイン」ボタンをクリック
-3. デモユーザーの認証情報を入力
-4. 認証後、プロファイル情報が表示されます
+1. アプリ1 (http://localhost:3000) でログイン
+2. アプリ2 (http://localhost:3001) にアクセス
+3. 自動的にログイン済みとして認識されます
+
+### TODOリストの使用
+
+1. ログイン後、「TODOリストを管理」ボタンをクリック
+2. タスクを追加・編集・削除
+3. 各アプリのTODOリストは独立して管理されます
 
 ### 新規ユーザー登録
 
-1. http://localhost:3000 にアクセス
-2. 「新規登録」ボタンをクリック
-3. 登録フォームに以下を入力:
-   - ユーザー名
-   - メールアドレス
-   - パスワード（2回入力）
-4. 登録完了後、自動的にログインされます
+1. いずれかのアプリにアクセス
+2. 「サインアップ」ボタンをクリック
+3. 必要情報を入力して登録
+4. 登録後、自動的に両アプリにログイン
 
 ## 🔧 カスタマイズ
 
 ### Keycloak設定の変更
 
-`keycloak/import/demo-realm.json` を編集して、Realm設定をカスタマイズできます。
+`keycloak/realm-export.json` を編集して、Realm設定をカスタマイズできます。
+変更後は `docker-compose down -v && docker-compose up -d` で再起動してください。
 
 ### 新しいユーザーの追加
 
@@ -147,17 +159,24 @@ docker-compose down -v
 ```
 .
 ├── docker-compose.yml       # Docker Compose設定
+├── init.sh                 # 自動セットアップスクリプト
 ├── .env.example            # 環境変数テンプレート
 ├── keycloak/
-│   └── import/
-│       └── demo-realm.json # Keycloak Realm設定
+│   └── realm-export.json   # Keycloak Realm設定（自動インポート）
 └── webapp/
     ├── Dockerfile          # Webアプリコンテナ設定
     ├── package.json        # Node.js依存関係
     ├── server.js           # Expressサーバー
+    ├── routes/
+    │   └── todos.js        # TODO API エンドポイント
+    ├── db/
+    │   └── init.sql        # データベース初期化
     └── views/              # EJSテンプレート
         ├── index.ejs       # ホームページ
-        └── profile.ejs     # プロファイルページ
+        ├── profile.ejs     # プロファイルページ
+        ├── todos.ejs       # TODOリスト画面
+        └── partials/
+            └── nav.ejs     # ナビゲーションバー
 ```
 
 ## 🐛 トラブルシューティング

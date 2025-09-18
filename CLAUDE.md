@@ -1,14 +1,17 @@
 # Keycloak認証サンドボックス - 開発ガイド
 
 ## プロジェクト概要
-このプロジェクトは、Keycloakを使用したOpenID Connect認証のデモアプリケーションです。Docker Composeで構成され、ユーザー登録、認証、プロファイル管理機能を提供します。
+このプロジェクトは、Keycloakを使用したシングルサインオン（SSO）とTODOリスト機能を実装したマルチアプリケーションのデモです。Docker Composeで完全自動セットアップが可能です。
 
 ## アーキテクチャ
 
-### コンテナ構成
-- **PostgreSQL** (port 5432): Keycloakのデータストア
+### コンテナ構成（7コンテナ）
+- **PostgreSQL (Keycloak用)**: Keycloakのデータストア
+- **PostgreSQL (App1用)**: アプリ1のTODOデータベース
+- **PostgreSQL (App2用)**: アプリ2のTODOデータベース
 - **Keycloak** (port 8080): 認証プロバイダー
-- **Webapp** (port 3000): Node.js/Expressアプリケーション
+- **Webapp1** (port 3000): Node.js/Expressアプリ（紫テーマ）
+- **Webapp2** (port 3001): Node.js/Expressアプリ（ピンクテーマ）
 
 ### 認証フロー
 1. ユーザーがWebアプリにアクセス
@@ -26,8 +29,9 @@ webapp/server.js:51-77 でこの使い分けを実装しています。
 
 ### Keycloak設定
 - Realm名: `demo`
-- Client ID: `webapp`
-- Client Secret: `secret`（.envで変更可能）
+- Client ID: `webapp` / `webapp2`
+- Client Secret: `secret` / `secret2`
+- 自動インポート: `keycloak/realm-export.json`
 
 ## 開発時の注意事項
 
@@ -41,16 +45,26 @@ webapp/server.js:51-77 でこの使い分けを実装しています。
 - **新規登録が機能しない**: Realmのregistration設定を確認
 - **セッションエラー**: SESSION_SECRET環境変数を確認
 
-## テスト環境の初期化
+## セットアップと初期化
 
+### 自動セットアップ（推奨）
 ```bash
-# 完全リセット
-docker-compose down -v
-docker-compose up -d
+# 初期化スクリプトを実行（完全自動）
+./init.sh
+```
 
-# Keycloak設定の再適用
-docker exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin
-docker exec keycloak /opt/keycloak/bin/kcadm.sh update realms/demo -s registrationAllowed=true
+### 手動セットアップ
+```bash
+# コンテナ起動（realm設定は自動インポート）
+docker-compose up -d
+```
+
+### 完全リセット
+```bash
+# データベースを含めて完全削除
+docker-compose down -v
+# 再セットアップ
+./init.sh
 ```
 
 ## 今後の改善点
