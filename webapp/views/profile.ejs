@@ -92,7 +92,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>👤 ユーザープロファイル</h1>
+        <% const currentPage = 'profile'; %>
+        <%- include('partials/nav', { user, appName, appColor, currentPage }) %>
+
 
         <div class="profile-card">
             <h2>基本情報</h2>
@@ -145,9 +147,9 @@
             <% } %>
         </div>
 
-        <div style="margin-top: 2rem;">
-            <a href="/" class="btn">ホームに戻る</a>
-            <a href="/logout" class="btn btn-danger">ログアウト</a>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/todos" class="btn" style="background: #48bb78;">📝 TODOリストへ</a>
+            <a href="/" class="btn">🏠 ホームへ</a>
         </div>
     </div>
 </body>

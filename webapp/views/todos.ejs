@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODOリスト - <%= appName %></title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, <%= appColor %> 0%, <%= appColor %> 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .user-info {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+        .todo-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .todo-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .todo-input:focus {
+            outline: none;
+            border-color: <%= appColor %>;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: <%= appColor %>;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn-danger {
+            background: #e53e3e;
+        }
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .todo-list {
+            list-style: none;
+            padding: 0;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background: white;
+            transition: all 0.2s;
+        }
+        .todo-item:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+        .todo-text.completed {
+            text-decoration: line-through;
+            color: #718096;
+        }
+        .todo-delete {
+            margin-left: 0.5rem;
+        }
+        .todo-date {
+            color: #a0aec0;
+            font-size: 0.75rem;
+            margin-left: 1rem;
+        }
+        .nav-links {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+        }
+        .loading {
+            text-align: center;
+            color: #718096;
+        }
+        .error {
+            background: #feb2b2;
+            color: #742a2a;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <% const currentPage = 'todos'; %>
+        <%- include('partials/nav', { user, appName, appColor, currentPage }) %>
+
+        <div class="user-info" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong>📝 あなたのTODOリスト</strong>
+                <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.9rem;">
+                    <%= appName %>専用のデータベースに保存されます
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <span style="color: #718096; font-size: 0.9rem;">ログイン中: <%= user.preferred_username || user.name || user.email %></span>
+            </div>
+        </div>
+
+        <form class="todo-form" id="todoForm">
+            <input
+                type="text"
+                id="todoInput"
+                class="todo-input"
+                placeholder="新しいTODOを入力..."
+                required
+                maxlength="500"
+            >
+            <button type="submit" class="btn">追加</button>
+        </form>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="loading" class="loading">読み込み中...</div>
+
+        <ul class="todo-list" id="todoList"></ul>
+
+        <div class="nav-links">
+            <a href="/" class="btn">🏠 ホームへ</a>
+            <a href="/profile" class="btn">👤 プロファイル</a>
+        </div>
+    </div>
+
+    <script>
+        let todos = [];
+
+        // TODO一覧を取得
+        async function fetchTodos() {
+            try {
+                const response = await fetch('/api/todos');
+                if (!response.ok) throw new Error('Failed to fetch todos');
+                todos = await response.json();
+                renderTodos();
+            } catch (error) {
+                showError('TODOの取得に失敗しました');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // TODO一覧を表示
+        function renderTodos() {
+            const todoList = document.getElementById('todoList');
+
+            if (todos.length === 0) {
+                todoList.innerHTML = '<li style="text-align: center; color: #718096;">TODOがありません</li>';
+                return;
+            }
+
+            todoList.innerHTML = todos.map(todo => `
+                <li class="todo-item">
+                    <input
+                        type="checkbox"
+                        class="todo-checkbox"
+                        ${todo.completed ? 'checked' : ''}
+                        onchange="toggleTodo(${todo.id}, ${!todo.completed})"
+                    >
+                    <span class="todo-text ${todo.completed ? 'completed' : ''}">
+                        ${escapeHtml(todo.title)}
+                    </span>
+                    <span class="todo-date">
+                        ${new Date(todo.created_at).toLocaleDateString('ja-JP')}
+                    </span>
+                    <button
+                        class="btn btn-danger btn-small todo-delete"
+                        onclick="deleteTodo(${todo.id})"
+                    >
+                        削除
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        // TODO追加
+        async function addTodo(event) {
+            event.preventDefault();
+            const input = document.getElementById('todoInput');
+            const title = input.value.trim();
+
+            if (!title) return;
+
+            try {
+                const response = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+
+                if (!response.ok) throw new Error('Failed to add todo');
+
+                const newTodo = await response.json();
+                todos.unshift(newTodo);
+                renderTodos();
+                input.value = '';
+                hideError();
+            } catch (error) {
+                showError('TODOの追加に失敗しました');
+            }
+        }
+
+        // TODO完了状態を切り替え
+        async function toggleTodo(id, completed) {
+            try {
+                const response = await fetch(`/api/todos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ completed })
+                });
+
+                if (!response.ok) throw new Error('Failed to update todo');
+
+                const updatedTodo = await response.json();
+                const index = todos.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    todos[index] = updatedTodo;
+                    renderTodos();
+                }
+                hideError();
+            } catch (error) {
+                showError('TODOの更新に失敗しました');
+                renderTodos(); // 元の状態に戻す
+            }
+        }
+
+        // TODO削除
+        async function deleteTodo(id) {
+            if (!confirm('このTODOを削除しますか？')) return;
+
+            try {
+                const response = await fetch(`/api/todos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete todo');
+
+                todos = todos.filter(t => t.id !== id);
+                renderTodos();
+                hideError();
+            } catch (error) {
+                showError('TODOの削除に失敗しました');
+            }
+        }
+
+        // エラー表示
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        // エラー非表示
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // HTMLエスケープ
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 初期化
+        document.getElementById('todoForm').addEventListener('submit', addTodo);
+        fetchTodos();
+    </script>
+</body>
+</html>

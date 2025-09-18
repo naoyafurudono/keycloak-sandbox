@@ -63,7 +63,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 <%= appName %> - Keycloak SSOデモ</h1>
+        <% const currentPage = 'home'; %>
+        <%- include('partials/nav', { user, appName, appColor, currentPage }) %>
+
 
         <% if (user) { %>
             <div class="user-info">
@@ -71,8 +73,14 @@
                 <p><strong>ユーザー名:</strong> <%= user.preferred_username || user.name %></p>
                 <p><strong>メールアドレス:</strong> <%= user.email %></p>
             </div>
-            <a href="/profile" class="btn" style="margin-right: 1rem;">プロファイル表示</a>
-            <a href="/logout" class="btn" style="background: #e53e3e;">ログアウト</a>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="/todos" class="btn" style="background: #48bb78; flex: 1; text-align: center;">
+                    📝 TODOリストを開く
+                </a>
+                <a href="/profile" class="btn" style="flex: 1; text-align: center;">
+                    👤 プロファイル表示
+                </a>
+            </div>
         <% } else { %>
             <div class="user-info">
                 <p><span class="status guest">ゲスト</span></p>

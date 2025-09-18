@@ -28,6 +28,10 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// TODOルートを追加
+const todosRouter = require("./routes/todos");
+app.use(todosRouter);
+
 const keycloakConfig = {
   realm: process.env.KEYCLOAK_REALM || "demo",
   "auth-server-url": process.env.KEYCLOAK_URL || "http://localhost:8080",
@@ -53,6 +57,15 @@ app.get("/", (req, res) => {
     appName: APP_NAME,
     appColor: APP_COLOR,
     appPort: PORT,
+  });
+});
+
+// TODO画面
+app.get("/todos", checkAuth, (req, res) => {
+  res.render("todos", {
+    user: req.session.user,
+    appName: APP_NAME,
+    appColor: APP_COLOR,
   });
 });
 

@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # Keycloak用のPostgreSQL
   postgres:
     image: postgres:15-alpine
     container_name: keycloak-postgres
@@ -14,6 +15,44 @@ services:
       - keycloak-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # アプリ1用のPostgreSQL
+  postgres-app1:
+    image: postgres:15-alpine
+    container_name: postgres-app1
+    environment:
+      POSTGRES_DB: app1_todos
+      POSTGRES_USER: app1user
+      POSTGRES_PASSWORD: app1pass
+    volumes:
+      - postgres_app1_data:/var/lib/postgresql/data
+      - ./webapp/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - keycloak-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app1user -d app1_todos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # アプリ2用のPostgreSQL
+  postgres-app2:
+    image: postgres:15-alpine
+    container_name: postgres-app2
+    environment:
+      POSTGRES_DB: app2_todos
+      POSTGRES_USER: app2user
+      POSTGRES_PASSWORD: app2pass
+    volumes:
+      - postgres_app2_data:/var/lib/postgresql/data
+      - ./webapp/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - keycloak-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app2user -d app2_todos"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,13 +99,19 @@ services:
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-secret}
       SESSION_SECRET: ${SESSION_SECRET:-your-session-secret}
       APP_URL: http://localhost:3000
+      DB_HOST: postgres-app1
+      DB_NAME: app1_todos
+      DB_USER: app1user
+      DB_PASSWORD: app1pass
+      DB_PORT: 5432
     depends_on:
       - keycloak
+      - postgres-app1
     networks:
       - keycloak-network
-    volumes:
-      - ./webapp:/app
-      - /app/node_modules
+  # ボリュームマウントを削除してDockerイメージを使用
+  # volumes:
+  #   - ./webapp:/app
 
   webapp2:
     build: ./webapp
@@ -84,13 +129,19 @@ services:
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET2:-secret2}
       SESSION_SECRET: ${SESSION_SECRET2:-your-session-secret-2}
       APP_URL: http://localhost:3001
+      DB_HOST: postgres-app2
+      DB_NAME: app2_todos
+      DB_USER: app2user
+      DB_PASSWORD: app2pass
+      DB_PORT: 5432
     depends_on:
       - keycloak
+      - postgres-app2
     networks:
       - keycloak-network
-    volumes:
-      - ./webapp:/app
-      - /app/node_modules
+# ボリュームマウントを削除してDockerイメージを使用
+# volumes:
+#   - ./webapp:/app
 
 networks:
   keycloak-network:
@@ -98,3 +149,5 @@ networks:
 
 volumes:
   postgres_data:
+  postgres_app1_data:
+  postgres_app2_data:

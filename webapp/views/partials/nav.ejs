@@ -1,0 +1,76 @@
+<style>
+    .nav-bar {
+        background: <%= appColor %>;
+        padding: 1rem 0;
+        margin: -2rem -2rem 2rem -2rem;
+        border-radius: 12px 12px 0 0;
+    }
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+    }
+    .nav-title {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    .nav-links {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: background 0.3s;
+    }
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .nav-link.active {
+        background: rgba(255, 255, 255, 0.3);
+        font-weight: bold;
+    }
+    .nav-user {
+        color: white;
+        opacity: 0.9;
+        margin-right: 1rem;
+    }
+    .nav-badge {
+        background: #48bb78;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+</style>
+
+<div class="nav-bar">
+    <div class="nav-container">
+        <h1 class="nav-title">
+            <%= appName %>
+            <% if (typeof currentPage !== 'undefined' && currentPage === 'todos') { %>
+                <span class="nav-badge">TODO</span>
+            <% } %>
+        </h1>
+        <div class="nav-links">
+            <% if (user) { %>
+                <span class="nav-user">👤 <%= user.preferred_username || user.name || user.email %></span>
+                <a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">🏠 ホーム</a>
+                <a href="/todos" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'todos' ? 'active' : '' %>">📝 TODO</a>
+                <a href="/profile" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'profile' ? 'active' : '' %>">👤 プロファイル</a>
+                <a href="/logout" class="nav-link">🚪 ログアウト</a>
+            <% } else { %>
+                <a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">🏠 ホーム</a>
+                <a href="/login" class="nav-link">🔑 ログイン</a>
+                <a href="/signup" class="nav-link">✨ 新規登録</a>
+            <% } %>
+        </div>
+    </div>
+</div>
