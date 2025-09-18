@@ -17,6 +17,8 @@
 1. ユーザーがWebアプリにアクセス
 2. ログイン/サインアップボタンでKeycloakにリダイレクト
 3. Keycloakで認証後、コールバックURLに戻る
+   - 通常認証: ユーザー名/パスワード
+   - ソーシャル認証: Googleアカウント
 4. アプリがトークンを取得してセッションを確立
 
 ## 重要な設定
@@ -32,6 +34,7 @@ webapp/server.js:51-77 でこの使い分けを実装しています。
 - Client ID: `webapp` / `webapp2`
 - Client Secret: `secret` / `secret2`
 - 自動インポート: `keycloak/realm-export.json`
+- Google OAuth: 環境変数で設定（`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`）
 
 ## 開発時の注意事項
 
@@ -46,6 +49,15 @@ webapp/server.js:51-77 でこの使い分けを実装しています。
 - **セッションエラー**: SESSION_SECRET環境変数を確認
 
 ## セットアップと初期化
+
+### Google認証の設定（オプション）
+```bash
+# 1. .envファイルを作成
+cp .env.example .env
+
+# 2. Google Cloud ConsoleでOAuth 2.0クライアントを作成
+# 3. .envファイルにクライアントIDとシークレットを設定
+```
 
 ### 自動セットアップ（推奨）
 ```bash
@@ -69,6 +81,6 @@ docker-compose down -v
 
 ## 今後の改善点
 - [ ] メール確認機能の実装
-- [ ] ソーシャルログインの追加
+- [x] ソーシャルログインの追加（Google OAuth実装済み）
 - [ ] MFA（多要素認証）の導入
 - [ ] ロールベースアクセス制御の実装

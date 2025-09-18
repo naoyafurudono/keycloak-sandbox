@@ -19,6 +19,7 @@ Keycloakを使用したシングルサインオン（SSO）と、TODOリスト�
 
 - **シングルサインオン**: 1度のログインで両アプリにアクセス可能
 - **ユーザー登録**: 新規ユーザーのセルフサインアップ
+- **Googleアカウント認証**: Google OAuth 2.0を使用したソーシャルログイン
 - **プロファイル表示**: 認証後のユーザー情報表示
 - **セキュアなログアウト**: Keycloakセッションも含めた完全なログアウト
 
@@ -41,6 +42,24 @@ Keycloakを使用したシングルサインオン（SSO）と、TODOリスト�
 - ポート 3000, 8080 が空いていること
 
 ## ⚙️ セットアップ
+
+### Google OAuth 2.0の設定（オプション）
+
+Googleアカウント認証を使用する場合：
+
+1. [Google Cloud Console](https://console.cloud.google.com/) にアクセス
+2. 新しいプロジェクトを作成または既存プロジェクトを選択
+3. 「APIとサービス」→「認証情報」→「認証情報を作成」→「OAuth 2.0 クライアント ID」
+4. アプリケーションの種類: 「ウェブアプリケーション」を選択
+5. 承認済みのリダイレクトURIに追加:
+   ```
+   http://localhost:8080/realms/demo/broker/google/endpoint
+   ```
+6. `.env` ファイルを作成し、取得したクライアントIDとシークレットを設定:
+   ```bash
+   cp .env.example .env
+   # .envファイルを編集して、GOOGLE_CLIENT_IDとGOOGLE_CLIENT_SECRETを設定
+   ```
 
 ### 方法1: 自動セットアップ（推奨）
 
